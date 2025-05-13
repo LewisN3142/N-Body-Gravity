@@ -1,4 +1,4 @@
-xPosition (au),yPosition (au),mass (M0)
--120,-180,0.5
-175,125,0.3
-185,115,0.2
+xPosition (au),yPosition (au),mass (M0),xAccelerationTest,yAccelerationTest
+-120,-180,0.5,1.96e-6, 1.97e-6
+175,125,0.3,7.0518e-4, -7.0910e-4
+185,115,0.2,-1.06266e-3,1.05873e-3
