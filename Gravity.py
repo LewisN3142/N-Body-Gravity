@@ -13,7 +13,7 @@ isTest = 1;
 testTolerance = 1e-8; 
 inputFile = 'dataInput';
 outputFile = 'dataOutput';
-arrowScale = 0; # set to 0 for unit vectors
+arrowScale = 1500; # set to 0 for unit vectors
 accelerationMode = 'naive' # Options: 'naive' or 'bh' (Barnes--Hut)
 
 #### (Global) Constants
@@ -54,17 +54,18 @@ def dataRescale(dataDict, scale):
         dataDict[key]*= scale;
       
 ### Plot vectors on graph
-# TODO maybe zip positions, data, acceleration etc into tuples then unzip at end...
 def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     fig, ax = plt.subplots();
     figurePath = myPath + inputFile + r'_' + labels[3] + '.png';
     
     if vectorScale == 0:
-        vectorScale = (xData*xData + yData*yData)**(-0.5);
+        vectorScale = np.sqrt(xData*xData + yData*yData); # entrywise norms
+        vectorScale[np.nonzero(vectorScale)] = np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
 
     for i in range (0,len(xPosition)):
         ax.quiver(xPosition, yPosition, vectorScale*xData,vectorScale*yData, angles='xy',scale_units='xy',scale=1,color='r');
         
+    ax.set_axisbelow(True);
     plt.grid();
     plt.title(labels[0]);
     plt.xlabel(labels[1]);
@@ -79,6 +80,7 @@ def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
 def testData(dataActual, dataTest):  
 
     a = abs(dataActual - dataTest) <= testTolerance;
+    print(dataActual);
     print(a);
     if (np.prod(a) == 0):
         print("Test failed");
@@ -106,15 +108,20 @@ def naiveAcceleration(xPosition, yPosition, masses):
     
     for i in range(1,numberObjects):
         for j in range(0,i):
-            # note typo in problem, can we do this using numpy operations to improve efficiency...
-            changeInX = xPosition[j] - xPosition[i];
-            changeInY = yPosition[j] - yPosition[i];
-            radiusCubed = (changeInX * changeInX + changeInY * changeInY)**(-1.5); # could use fast inverse sqrt in c++
             
-            xAcceleration[i] += masses[j] * changeInX * radiusCubed;
-            xAcceleration[j] -= masses[i] * changeInX * radiusCubed;
-            yAcceleration[i] += masses[j] * changeInY * radiusCubed;
-            yAcceleration[j] -= masses[i] * changeInY * radiusCubed;  
+            changeInPosition = np.array([xPosition[j] - xPosition[i] ,yPosition[j] - yPosition[i]]);     
+            if (np.any(changeInPosition)):
+                radiusCubed = np.reciprocal(np.linalg.norm(changeInPosition)); # Could use fast inverse sqrt in c++
+                radiusCubed = radiusCubed * radiusCubed * radiusCubed;
+            else:
+                radiusCubed = 0;
+                print("Warning: 2 objects in same position");
+                
+            # note typo in problem
+            xAcceleration[i] += masses[j] * changeInPosition[0] * radiusCubed;
+            xAcceleration[j] -= masses[i] * changeInPosition[0] * radiusCubed;
+            yAcceleration[i] += masses[j] * changeInPosition[1] * radiusCubed;
+            yAcceleration[j] -= masses[i] * changeInPosition[1] * radiusCubed;  
       
     print('acceleration computed');
     return {"xAcceleration (ms^-2)": xAcceleration, "yAcceleration (ms^-2)":yAcceleration};
@@ -123,6 +130,7 @@ def naiveAcceleration(xPosition, yPosition, masses):
 ## Barnes Hut Algorithm
 # TODO add code
 def barnesHutAcceleration(xPosition, yPosition, masses):
+    return 0;
     
 
 
