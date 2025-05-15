@@ -12,7 +12,7 @@
       <li> <a href="installation">Installation</a></li>
       <li> <a href="configuring-settings">Configuring Settings</a><li>
     </ul>  </li>
-  </li> <a href="contact">Contact</a></li>
+  <li> <a href="contact">Contact</a></li>
   <li> <a href="acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
