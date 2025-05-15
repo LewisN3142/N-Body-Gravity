@@ -14,7 +14,7 @@
     </ul>  
   </li>
   </li> <a href="contact">Contact</a></li>
-  <li> <a href="acknowledgements">Acknowledgements</a></li>
+  <li> <a href="acknowledgements-and-references">Acknowledgements and References</a></li>
   </ol>
 </details>
 
@@ -48,9 +48,20 @@ This section details all you need to know about downloading and using the `N_Bod
 
 ## Contact
 
+Should you have any comments, queries, or requests, please feel free to contact me using the form on my <a href="https://lewisn3142.github.io/contact_page/contact.html">website</a>.
+Alternatively, you may raise an issue on this project's <a href="https://github.com/LewisN3142/N-Body-Gravity/issues">issues page</a>.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Acknowledgements
+## Acknowledgements and References
+
+I would like to thank the staff at the Met Office for inviting me to interview and setting the exercise that led to me producing this programme. The experience of diving back into python and solving this problem, while keeping in mind software engineering principles such as unit testing, versioning, and modularity was a great way to learn and consolidate my knowledge.
+
+The references below were particularly useful in my research &mdash; I recommend reading these for more context on the problem itself, especially the Barnes&ndash;Hut algorithm:
+
+-
+-
+-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
