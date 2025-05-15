@@ -1,4 +1,4 @@
-# import potentially useful libraries
+#### import potentially useful libraries #################################################################################
 import math
 import numpy as np
 import pandas as pd
@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 import os
 
 
-##### Version 2 (functional programming) ##################################################################################
+#### Version 2 (functional programming) ##################################################################################
 
-#### Settings
+### Settings
 isTest = 1;
 testTolerance = 1e-8; 
 inputFile = 'dataInput';
 outputFile = 'dataOutput';
-arrowScale = 1500; # set to 0 for unit vectors
+arrowScale = 0; # set to 0 for unit vectors
 accelerationMode = 'naive' # Options: 'naive' or 'bh' (Barnes--Hut)
 
-#### (Global) Constants
+### (Global) Constants
 gravitationalConstant = 6.7e-11;
 astronomicalUnit = 1.5e11
 solarMass = 2e30;
@@ -26,10 +26,9 @@ accelerationScale = gravitationalConstant * solarMass / (astronomicalUnit * astr
 myPath = os.path.dirname(os.path.abspath(__file__)) + r'/';
 
 
+### File I/O ############################################################################################################
 
-#### Functions ############################################################################################################
-
-### Load in data from csv file
+## Load in data from csv file
 def loadData(chosenInputFile):
     # Change input file to test version if selected
     if isTest != 0:
@@ -41,26 +40,35 @@ def loadData(chosenInputFile):
     print('data imported from ' + loadPath);
     return dataFrame, chosenInputFile;
       
-###  Convert dataFrame to dict 
+##  Convert dataFrame to dict 
 def dataFrameToNumpyDict(dataFrame):
     data = dataFrame.to_dict(orient='list');
     for key in data:
         data[key] = np.array(data[key]);   
     return data;
-   
-### Rescale quantities
+    
+## Output data to csv file
+def saveData(dataFrame, chosenOutputFile):
+    savePath = myPath + chosenOutputFile + '.csv';
+    df.to_csv(savePath, encoding='utf-8', index=True, header=True);
+    print('data saved to ' + savePath);
+      
+      
+### Utility Functions ############################################################################################################
+
+## Rescale quantities
 def dataRescale(dataDict, scale):
     for key in dataDict:
         dataDict[key]*= scale;
       
-### Plot vectors on graph
+## Plot vectors on graph
 def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     fig, ax = plt.subplots();
     figurePath = myPath + inputFile + r'_' + labels[3] + '.png';
     
     if vectorScale == 0:
         vectorScale = np.sqrt(xData*xData + yData*yData); # entrywise norms
-        vectorScale[np.nonzero(vectorScale)] = np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
+        vectorScale[np.nonzero(vectorScale)] = 10*np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
 
     for i in range (0,len(xPosition)):
         ax.quiver(xPosition, yPosition, vectorScale*xData,vectorScale*yData, angles='xy',scale_units='xy',scale=1,color='r');
@@ -76,7 +84,7 @@ def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     plt.close(fig);
     print('figure saved to ' + figurePath);
     
-### Unit test against data provided in exercise (pass if all true)
+## Unit test against data provided in exercise (pass if all true)
 def testData(dataActual, dataTest):  
 
     a = abs(dataActual - dataTest) <= testTolerance;
@@ -87,19 +95,10 @@ def testData(dataActual, dataTest):
     else:
         print("Test passed");
         
-### Output data to csv file
-def saveData(dataFrame, chosenOutputFile):
-    savePath = myPath + chosenOutputFile + '.csv';
-    df.to_csv(savePath, encoding='utf-8', index=True, header=True);
-    print('data saved to ' + savePath);
-    
-   
-   
+
 ### Acceleration Code #####################################################################################################
 
-## Naive algorithm for computing acceleration with O(n^2) complexity
-
-# Compute acceleration (in non SI units)
+## Naive algorithm for computing acceleration with O(n^2) complexity (in non SI units)
 def naiveAcceleration(xPosition, yPosition, masses): 
     
     numberObjects = len(masses)
@@ -109,15 +108,17 @@ def naiveAcceleration(xPosition, yPosition, masses):
     for i in range(1,numberObjects):
         for j in range(0,i):
             
-            changeInPosition = np.array([xPosition[j] - xPosition[i] ,yPosition[j] - yPosition[i]]);     
+            changeInPosition = np.array([xPosition[j] - xPosition[i] ,yPosition[j] - yPosition[i]]);   
+            
+            # Manage objects being in same position (avoid divide by zero)
             if (np.any(changeInPosition)):
                 radiusCubed = np.reciprocal(np.linalg.norm(changeInPosition)); # Could use fast inverse sqrt in c++
                 radiusCubed = radiusCubed * radiusCubed * radiusCubed;
             else:
                 radiusCubed = 0;
                 print("Warning: 2 objects in same position");
-                
-            # note typo in problem
+              
+            # Update acceleration from objects i and j interacting
             xAcceleration[i] += masses[j] * changeInPosition[0] * radiusCubed;
             xAcceleration[j] -= masses[i] * changeInPosition[0] * radiusCubed;
             yAcceleration[i] += masses[j] * changeInPosition[1] * radiusCubed;
@@ -127,7 +128,7 @@ def naiveAcceleration(xPosition, yPosition, masses):
     return {"xAcceleration (ms^-2)": xAcceleration, "yAcceleration (ms^-2)":yAcceleration};
   
 
-## Barnes Hut Algorithm
+## Barnes Hut Algorithm (in non SI units)
 # TODO add code
 def barnesHutAcceleration(xPosition, yPosition, masses):
     return 0;
@@ -135,7 +136,7 @@ def barnesHutAcceleration(xPosition, yPosition, masses):
 
 
 
-# Wrapper function (compute, test, plot, rescale)
+## Wrapper function (compute, test, plot, rescale)
 def accelerationWrapper(data, mode):
     
     if mode == 'naive':
@@ -166,4 +167,6 @@ df.update(accelerationWrapper(df,accelerationMode));
 # Convert back to dataFrame and export
 df = pd.DataFrame.from_dict(df);
 saveData(df, outputFile);
+
+input("Press enter to exit");
 
