@@ -9,12 +9,13 @@ import os
 #### Version 2 (functional programming) ##################################################################################
 
 ### Settings
-isTest = 1;
+isTest = 0;
 testTolerance = 1e-8; 
 inputFile = 'dataInput';
 outputFile = 'dataOutput';
-arrowScale = 0; # set to 0 for unit vectors
-accelerationMode = 'naive' # Options: 'naive' or 'bh' (Barnes--Hut)
+arrowScale = 0; # set to 0 to set all arrows to the same length
+accelerationMode = 'naive'; # Options: 'naive' or 'bh' (Barnes--Hut)
+isDropDuplicates = 0;
 
 ### (Global) Constants
 gravitationalConstant = 6.7e-11;
@@ -29,15 +30,33 @@ myPath = os.path.dirname(os.path.abspath(__file__)) + r'/';
 ### File I/O ############################################################################################################
 
 ## Load in data from csv file
-def loadData(chosenInputFile):
+def loadData(chosenInputFile, dropDuplicates):
     # Change input file to test version if selected
     if isTest != 0:
         chosenInputFile = 'dataTest'
     
     # Import data from file (allows for large number of objects)
     loadPath = myPath + chosenInputFile + '.csv';
-    dataFrame = pd.read_csv(loadPath);
+    
+    try:
+        dataFrame = pd.read_csv(loadPath);
+    except FileNotFoundError:
+        print("File not found at " + loadPath);
+    except pd.errors.EmptyDataError:
+        print("No data in file " + loadPath);
+    except pd.errors.ParserError:
+        print("Unable to parse " + loadPath + "\nPlease make sure data is formatted correctly.");
+    except Exception:
+        print("An unknown error occured when loading " + loadPath);
+        
     print('data imported from ' + loadPath);
+    
+    if dropDuplicates:
+        df_filtered = dataFrame.drop_duplicates(ignore_index=True);
+        if not len(dataFrame) == len(df_filtered):
+            print("Warning: duplicate objects removed");
+        dataFrame = df_filtered;
+        
     return dataFrame, chosenInputFile;
       
 ##  Convert dataFrame to dict 
@@ -47,9 +66,24 @@ def dataFrameToNumpyDict(dataFrame):
         data[key] = np.array(data[key]);   
     return data;
     
+def doesFileExist(filePath, extension):
+    while os.path.isfile(filePath):
+        print("The file " + filePath + " already exists. \nWould you like to overwrite it? Y/N");
+
+        user = input();
+        if user != "Y" and user != "y":
+            print("Please choose an alternative file name:")
+            filePath = myPath + input() + extension;  
+        else:
+            break;
+            
+    return filePath;
+        
+    
 ## Output data to csv file
 def saveData(dataFrame, chosenOutputFile):
     savePath = myPath + chosenOutputFile + '.csv';
+    savePath = doesFileExist(savePath, '.csv');        
     df.to_csv(savePath, encoding='utf-8', index=True, header=True);
     print('data saved to ' + savePath);
       
@@ -65,10 +99,11 @@ def dataRescale(dataDict, scale):
 def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     fig, ax = plt.subplots();
     figurePath = myPath + inputFile + r'_' + labels[3] + '.png';
+    figurePath = doesFileExist(figurePath,'.png');
     
     if vectorScale == 0:
         vectorScale = np.sqrt(xData*xData + yData*yData); # entrywise norms
-        vectorScale[np.nonzero(vectorScale)] = 10*np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
+        vectorScale[np.nonzero(vectorScale)] = 15*np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
 
     for i in range (0,len(xPosition)):
         ax.quiver(xPosition, yPosition, vectorScale*xData,vectorScale*yData, angles='xy',scale_units='xy',scale=1,color='r');
@@ -80,6 +115,9 @@ def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     plt.ylabel(labels[2]);
         
     fig.gca().set_aspect("equal");
+    
+    
+    
     fig.savefig(figurePath);
     plt.close(fig);
     print('figure saved to ' + figurePath);
@@ -116,7 +154,7 @@ def naiveAcceleration(xPosition, yPosition, masses):
                 radiusCubed = radiusCubed * radiusCubed * radiusCubed;
             else:
                 radiusCubed = 0;
-                print("Warning: 2 objects in same position");
+                print("Warning: 2 objects in position (" + str(xPosition[i]) + "," + str(yPosition[i]) + ").");
               
             # Update acceleration from objects i and j interacting
             xAcceleration[i] += masses[j] * changeInPosition[0] * radiusCubed;
@@ -143,6 +181,8 @@ def accelerationWrapper(data, mode):
         acceleration = naiveAcceleration(data["xPosition (au)"],data["yPosition (au)"],data["mass (M0)"]);
     elif mode == 'bh':
         acceleration = barnesHutAcceleration(data["xPosition (au)"],data["yPosition (au)"],data["mass (M0)"]);
+    else:
+        raise Exception("accelerationMode must be set to either 'naive' or 'bh' (with quotes)");
 
     if isTest != 0:
         testData(np.concatenate((acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"])),np.concatenate((data["xAccelerationTest"], data["yAccelerationTest"])));
@@ -158,7 +198,7 @@ def accelerationWrapper(data, mode):
 #### Execution
 
 # load data, clean, then convert to numpy
-df, inputFile = loadData(inputFile); 
+df, inputFile = loadData(inputFile, isDropDuplicates); 
 df = dataFrameToNumpyDict(df);
 
 # Perform computations
