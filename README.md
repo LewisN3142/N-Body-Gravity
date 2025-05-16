@@ -82,7 +82,7 @@ The `N_Body_Gravity.py` script comes with a number of easily customisable parame
     isDropDuplicates
 ```
 
- - The `isTest` parameter is a boolean which triggers testing mode when set `1` and standard mode when set to `0`. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. The result of the computation is then compared to a pre-computed solution (stored in `dataTest.csv`) and checked to see if it is within tolerance. The results of the test will be output to the terminal/command prompt/console.
+ - The `isTest` parameter is a boolean which triggers testing mode when set `1` and standard mode when set to `0`. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. The result of the computation is then compared to a pre-computed solution (stored in `dataTest.csv`) and checked to see if it is within tolerance. The results of the test will be output to the terminal/command prompt/console. Note that the unit test utilises duplicate objects, so will fail if `isDropDuplicates` is set to `1`.
 
  - The `testTolerance` parameter allows the user to set the tolerance for the above unit test. That is, how close the output of the script has to be to the pre-computed solution for the code to pass the test. The default value is `1e-8`.
 
@@ -96,7 +96,7 @@ Note: Thie `inputFile` and `outputFile` parameters also take relative paths (tak
 
  - The `accelerationMode` parameter allows the user to choose between two means of computing the acceleration of the objects, namely `"naive"` and `"bh"`. The default value is the string `"naive"`, which causes the code to compute the acceleration of each object explicitly using nested for loops at time complexity `O(n^2)`. The value `"bh"` causes the script to compute the acceleration using the Barnes--Hut approximation algorithm, which, given an accelerating object and several source objects, groups source objects which are far away together, representing their contribution to the acceleration of the accelerating object by that of a hypothetical object with their total mass, situated at their center of mass.
 
- -  The `isDropDuplicates` parameter is a boolean, which, when set to `1`, removes duplicate objects from the input data. Note that if the objects are in the same position but have different masses, the code will still execute regardless of the value of `isDropDuplicates`, but will also print a warning to console with the position at which the two objects coincide. The default value is `1`.
+ -  The `isDropDuplicates` parameter is a boolean, which, when set to `1`, removes duplicate objects from the input data. Note that if the objects are in the same position but have different masses, the code will still execute regardless of the value of `isDropDuplicates`, but will also print a warning to console with the position at which the two objects coincide. The default value is `0`.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
