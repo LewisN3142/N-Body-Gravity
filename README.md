@@ -43,16 +43,18 @@ This section details all you need to know about downloading and using the `N_Bod
 1. Before downloading the `N_Body_Systems` script, please ensure that you have all of the necessary requirements, beginning with an installation of Python ver. 3.9.6 or newer. Older versions are not supported but may still work. For more information on installing Python, see the <a href="https://www.python.org/downloads/">Official Python Website</a> or refer to the <a href="https://github.com/PackeTsar/Install-Python/blob/master/README.md">Handy Guide</a> provided by PackeTsar. 
 
 2. Now that you have Python installed, you will need to install the additional libraries listed above. This can be done using the following pip command in the system terminal/command prompt:
-  ```sh
+
+ ```sh
     python -m pip install "name-of-package"
   ```
-  where "name-of-package" should be repaced with "numpy", "matplotlib" and "pandas" respectively. In order to update existing packages, use the command
+   where "name-of-package" should be repaced with "numpy", "matplotlib" and "pandas" respectively. In order to update existing packages, use the command
   ```sh
     python -m pip install --upgrade "name-of-package"
   ```
 
-3. Once you have installed Python and the required libraries, you will also need an IDE (Integrated Development Environment). The standard Python installation comes with its own, namely IDLE, which is sufficient to run the code in this repository. However you may wish to install another, for example <a href="https://notepad-plus-plus.org/">Notepad++</a> or <a href="https://www.spyder-ide.org/">Spyder</a>, to aid in your own development. <space> <space>
-Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you only wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the test file `dataTest.csv` and save the output to `dataOutput.csv` and `dataTest_acceleration.png`.
+3. Once you have installed Python and the required libraries, you will also need an IDE (Integrated Development Environment). The standard Python installation comes with its own, namely IDLE, which is sufficient to run the code in this repository. However you may wish to install another, for example <a href="https://notepad-plus-plus.org/">Notepad++</a> or <a href="https://www.spyder-ide.org/">Spyder</a>, to aid in your own development.
+   
+ Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you only wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the test file `dataTest.csv` and save the output to `dataOutput.csv` and `dataTest_acceleration.png`.
 
 4.
 
