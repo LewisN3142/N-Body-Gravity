@@ -75,19 +75,17 @@ The `N_Body_Gravity.py` script comes with a number of easily customisable parame
 ``` sh
     isTest
     testTolerance
-```
-
- - The `isTest` parameter is a boolean which triggers testing mode when set 1 and standard mode when set to 0. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. If the result of the computation
-
-
-
-```sh
     inputFile
     outputFile
     arrowScale
     accelerationMode
 ```
 
+ - The `isTest` parameter is a boolean which triggers testing mode when set `1` and standard mode when set to `0`. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. The result of the computation is then compared to a pre-computed solution (stored in `dataTest.csv`) and checked to see if it is within tolerance. The results of the test will be output to the terminal/command prompt/console.
+
+ - The `testTolerance` parameter allows the user to set the tolerance for the above unit test. That is, how close the output of the script has to be to the pre-computed solution for the code to pass the test. The default value is `1e-8`.
+
+ - 
 
 
 
