@@ -47,7 +47,7 @@ This section details all you need to know about downloading and using the `N_Bod
     ```sh
         python -m pip install "name-of-package"
     ```
-    where "name-of-package" should be repaced with "numpy", "matplotlib" and "pandas" respectively. In order to update existing packages, use the command
+    where "name-of-package" should be repaced with "numpy", "matplotlib" and "pandas" respectively (with quotes). In order to update existing packages, use the command
     
     ```sh
         python -m pip install --upgrade "name-of-package"
@@ -57,7 +57,13 @@ This section details all you need to know about downloading and using the `N_Bod
    
     Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you only wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the test file `dataTest.csv` and save the output to `dataOutput.csv` and `dataTest_acceleration.png`.
 
-4.
+4. Finally, you will need to either download or clone this repository, or download the files. In order to clone the repository, use the following command:
+    ```sh
+        git clone https://github.com/LewisN3142/N_Body_Gravity.git
+    ```
+    Alternatively, by clicking the green "code" button on the top right of the repository window, you can choose to either download the repository as a `.zip` folder, open with Github desktop, or clone via https.
+   
+    Note: it is important that the files in this repository are stored in the *same* folder, so that they have the same relative path.
 
 
 ### Configuring Settings
