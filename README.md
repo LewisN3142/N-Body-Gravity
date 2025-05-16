@@ -29,17 +29,23 @@ This section details all you need to know about downloading and using the `N_Bod
 
 ### Requirements
 
-- Python (designed on 3.9.6, earlier versions unsupported but may work)
+- Python (3.9.6 or newer)
+  
+- An IDE 
 
 - Additional libraries
-
   - Numpy
   - Matplotlib
   - Pandas
 
-- An IDE (for example, notepad++)
-
 ### Installation
+
+Before downloading the `N_Body_Systems` script, please ensure that you have all of the necessary requirements, beginning with an installation of Python ver. 3.9.6 or newer. Older versions are not supported but may still work. For more information on installing Python, see the <a href="https://www.python.org/downloads/">Official Python Website</a> or refer to the <a href="https://github.com/PackeTsar/Install-Python/blob/master/README.md">Handy Guide</a> provided by PackeTsar. 
+
+Once you have installed Python, you will also need an IDE (Integrated Development Environment). The standard Python installation comes with its own, namely IDLE, which is sufficient to run the code in this repository. However you may wish to install another, for example <a href="https://notepad-plus-plus.org/">Notepad++</a> or <a href="https://www.spyder-ide.org/">Spyder</a>, to aid in your own development. 
+
+Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you simply wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the test file `dataTest.csv`.
+
 
 ### Configuring Settings
 
@@ -58,8 +64,8 @@ I would like to thank the staff at the Met Office for inviting me to interview a
 
 The references below were particularly useful in my research &mdash; I recommend reading these for more context on the problem itself, especially the Barnes&ndash;Hut algorithm:
 
--
--
+- Ventimiglia, T. and Wayne, K., \emph{The Barnes-Hut Algorithm}, arborjs, (2011): <a href="https://arborjs.org/docs/barnes-hut">link</a>.
+- BaGreal2, \emph{gravitation-particles}, Github, (2023): <a href="https://github.com/BaGreal2/gravitation-particles">link</a>.
 -
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
