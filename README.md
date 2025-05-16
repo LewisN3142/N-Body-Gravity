@@ -79,21 +79,24 @@ The `N_Body_Gravity.py` script comes with a number of easily customisable parame
     outputFile
     arrowScale
     accelerationMode
+    dropDuplicates
 ```
 
  - The `isTest` parameter is a boolean which triggers testing mode when set `1` and standard mode when set to `0`. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. The result of the computation is then compared to a pre-computed solution (stored in `dataTest.csv`) and checked to see if it is within tolerance. The results of the test will be output to the terminal/command prompt/console.
 
  - The `testTolerance` parameter allows the user to set the tolerance for the above unit test. That is, how close the output of the script has to be to the pre-computed solution for the code to pass the test. The default value is `1e-8`.
 
- - The `inputFile` parameter allows the user to set the name of the file which should be read for the positions and masses of the objects in the systems. The file must be of `.csv` type (comma separated value), with first row containing the headings `xPosition (au),yPosition (au),mass (M0)` (and any other data you wish to input) and should be stored in the same folder as the `N_Body_System.py` file. The default value is the string `'dataInput'`.
+ - The `inputFile` parameter allows the user to set the name of the file which should be read for the positions and masses of the objects in the systems. The file must be of `.csv` type (comma separated value), with first row containing the headings `xPosition (au),yPosition (au),mass (M0)` (as well as any other data you wish to input) and should be stored in the same folder as the `N_Body_System.py` file. The default value is the string `'dataInput'`.
 
  - The `outputFile` parameter allows the user to set the name of the `.csv` file to which the data should be saved. The default value is the string `'dataOutput'`. If the file does not already exist, it will be created, whereas if the file does already exist, it will be overwritten.
 
-Note: Thie `inputFile` and `outputFile` parameters also take relative paths (taken relative to the `N_Body_System.py` file) if you do not wish to store your input and output files in this folder.
+Note: Thie `inputFile` and `outputFile` parameters also take relative paths (taken relative to the `N_Body_System.py` file) if you do not wish to store your input and output files in this folder. 
 
  - The `arrowScale` parameter allows the user to increase or decrease the arrows in the plot produced by an overall scale factor. Setting `arrowScale` to `0` sets all of the arrows to the same length (namely 15 units). The plot is saved to the file `inputFile_acceleration.png`, where inputFile is replaced by the value of the `inputFile` parameter.
 
  - The `accelerationMode` parameter allows the user to choose between two means of computing the acceleration of the objects, namely `"naive"` and `"bh"`. The default value is the string `"naive"`, which causes the code to compute the acceleration of each object explicitly using nested for loops at time complexity `O(n^2)`. The value `"bh"` causes the script to compute the acceleration using the Barnes--Hut approximation algorithm, which, given an accelerating object and several source objects, groups source objects which are far away together, representing their contribution to the acceleration of the accelerating object by that of a hypothetical object with their total mass, situated at their center of mass.
+
+ -  The `dropDuplicates` parameter is a boolean, which, when set to `1`, removes duplicate objects from the input data. Note that if the objects are in the same position but have different masses, the code will still execute regardless of the value of `dropDuplicates`, but will also print a warning to console with the position at which the two objects coincide. 
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
