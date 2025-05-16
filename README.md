@@ -55,7 +55,7 @@ This section details all you need to know about downloading and using the `N_Bod
 
 3. Once you have installed Python and the required libraries, you will also need an IDE (Integrated Development Environment). The standard Python installation comes with its own, namely IDLE, which is sufficient to run the code in this repository. However you may wish to install another, for example <a href="https://notepad-plus-plus.org/">Notepad++</a> or <a href="https://www.spyder-ide.org/">Spyder</a>, to aid in your own development.
    
-    Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you only wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the test file `dataTest.csv` and save the output to `dataOutput.csv` and `dataTest_acceleration.png`.
+    Note: an IDE is only required if you wish to specify your own input and output files, add your own functions to compute other derived quantities, or change the settings detailed below. If you only wish to demo the code, simply double clicking on the file `N_Body_Systems.py` will run the code on the file `dataInput.csv` and save the output to `dataOutput.csv` and `dataInput_acceleration.png`.
 
 4. Finally, you will need to either download or clone this repository, or download the files. In order to clone the repository, use the following command:
     ```sh
@@ -65,8 +65,32 @@ This section details all you need to know about downloading and using the `N_Bod
    
     Note: it is important that the files in this repository are stored in the *same* folder, so that they have the same relative path.
 
+5. Now you're ready to use the script! To view the demo code, simply double click the `N_Body_Gravity.py` file you downloaded, or call the script in the terminal/command prompt. 
+
 
 ### Configuring Settings
+
+The `N_Body_Gravity.py` script comes with a number of easily customisable parameters, listed at the top of the script file, which can be edited in your IDE of choice. These parameters are:
+
+``` sh
+    isTest
+    testTolerance
+```
+
+ - The `isTest` parameter is a boolean which triggers testing mode when set 1 and standard mode when set to 0. Testing mode takes input data from the `dataTest.csv` and computes the acceleration of the bodies listed there. If the result of the computation
+
+
+
+```sh
+    inputFile
+    outputFile
+    arrowScale
+    accelerationMode
+```
+
+
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
