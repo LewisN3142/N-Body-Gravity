@@ -1,6 +1,7 @@
 #### import potentially useful libraries #################################################################################
 import math
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -9,34 +10,34 @@ import os
 #### Version 2 (functional programming) ##################################################################################
 
 ### Settings
-isTest = 0;
-testTolerance = 1e-8; 
-inputFile = 'dataInput';
-outputFile = 'dataOutput';
-arrowScale = 0; # set to 0 to set all arrows to the same length
-accelerationMode = 'naive'; # Options: 'naive' or 'bh' (Barnes--Hut)
-isDropDuplicates = 0;
+isTest: bool = False;
+testTolerance: float = 1e-8; 
+inputFile: str = 'dataInput';
+outputFile: str = 'dataOutput';
+arrowScale: int = 0; # set to 0 to set all arrows to the same length
+accelerationMode: str = 'naive'; # Options: 'naive' or 'bh' (Barnes--Hut)
+isDropDuplicates: bool = False;
 
 ### (Global) Constants
-gravitationalConstant = 6.7e-11;
-astronomicalUnit = 1.5e11
-solarMass = 2e30;
+gravitationalConstant: float = 6.7e-11;
+astronomicalUnit: float = 1.5e11
+solarMass: float = 2e30;
 
-accelerationScale = gravitationalConstant * solarMass / (astronomicalUnit * astronomicalUnit); # Convert units to SI (scales by ~e-3)
+accelerationScale: float = gravitationalConstant * solarMass / (astronomicalUnit * astronomicalUnit); # Convert units to SI (scales by ~e-3)
 
-myPath = os.path.dirname(os.path.abspath(__file__)) + r'/';
+myPath: str = os.path.dirname(os.path.abspath(__file__)) + r'/';
 
 
 ### File I/O ############################################################################################################
 
 ## Load in data from csv file
-def loadData(chosenInputFile, dropDuplicates):
+def loadData(chosenInputFile: str):
     # Change input file to test version if selected
     if isTest != 0:
         chosenInputFile = 'dataTest'
     
     # Import data from file (allows for large number of objects)
-    loadPath = myPath + chosenInputFile + '.csv';
+    loadPath: str = myPath + chosenInputFile + '.csv';
     
     print("\nLoading data from " + loadPath);
     
@@ -51,29 +52,31 @@ def loadData(chosenInputFile, dropDuplicates):
     except Exception:
         print("An unknown error occured during loading.");
         
-    print("Data imported");
+    print("Data imported");        
+    return dataFrame, chosenInputFile;
     
+## Clean up data (remove duplicates)
+def removeDuplicates(dataFrame, dropDuplicates: bool):
     if dropDuplicates:
         df_filtered = dataFrame.drop_duplicates(ignore_index=True);
         if not len(dataFrame) == len(df_filtered):
             print("Warning: duplicate objects removed");
         dataFrame = df_filtered;
-        
-    return dataFrame, chosenInputFile;
+    return dataFrame;
       
 ## Convert dataFrame to dict 
-def dataFrameToNumpyDict(dataFrame):
-    data = dataFrame.to_dict(orient='list');
+def dataFrameToNumpyDict(dataFrame) -> dict[str,npt.NDArray[np.float64]]:
+    data: dict[str,npt.NDArray[np.float64]] = dataFrame.to_dict(orient='list');
     for key in data:
         data[key] = np.array(data[key]);   
     return data;
     
 ## Check if file with name filePath.extension exists and ask to overwrite
-def doesFileExist(filePath, extension):
+def doesFileExist(filePath: str, extension: str) -> str:
     while os.path.isfile(filePath):
         print("\nThe file " + filePath + " already exists. \nWould you like to overwrite it? Y/N");
 
-        user = input();
+        user: str = input();
         if user != "Y" and user != "y":
             print("Please choose an alternative file name:")
             filePath = myPath + input() + extension;  
@@ -82,8 +85,8 @@ def doesFileExist(filePath, extension):
     return filePath;
         
 ## Output data to csv file
-def saveData(dataFrame, chosenOutputFile):
-    savePath = myPath + chosenOutputFile + '.csv';
+def saveData(dataFrame: dict[str,npt.NDArray[np.float64]], chosenOutputFile: str) -> None:
+    savePath: str = myPath + chosenOutputFile + '.csv';
     savePath = doesFileExist(savePath, '.csv');        
     df.to_csv(savePath, encoding='utf-8', index=True, header=True);
     print('\nData saved to ' + savePath);
@@ -92,25 +95,25 @@ def saveData(dataFrame, chosenOutputFile):
 ### Utility Functions ############################################################################################################
 
 ## Rescale quantities
-def dataRescale(dataDict, scale):
+def dataRescale(dataDict: dict[str, npt.NDArray[np.float64]], scale: float) -> dict[str,npt.NDArray[np.float64]]:
     for key in dataDict:
         dataDict[key]*= scale;
-       
+    return dataDict;
        
 ## Check if column headings in dataRequired (list) are present in inputData (dictionary)
-def hasRequiredData(inputData, dataRequired):
+def hasRequiredData(inputData, dataRequired: list[str]):
         for item in dataRequired:
             if item not in inputData:
                 raise Exception("Please ensure that the input file has a column with heading: " + item); 
  
- 
 ## Plot vectors on graph
-def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
+def plotVectors(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], xData: npt.NDArray[np.float64], yData: npt.NDArray[np.float64], labels: list[str], scaleOfArrow: int) -> None:
     fig, ax = plt.subplots();
     figurePath = myPath + inputFile + r'_' + labels[3] + '.png';
     figurePath = doesFileExist(figurePath,'.png');
     
-    if vectorScale == 0:
+    vectorScale: npt.NDArray[np.float64] = np.full(len(xPosition),scaleOfArrow);
+    if scaleOfArrow == 0:
         vectorScale = np.sqrt(xData*xData + yData*yData); # entrywise norms
         vectorScale[np.nonzero(vectorScale)] = 15*np.reciprocal(vectorScale[np.nonzero(vectorScale)]); # handle objects with vector zero
 
@@ -128,9 +131,8 @@ def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     plt.close(fig);
     print('\nfigure saved to ' + figurePath);
  
- 
 ## Unit test against data provided in exercise (pass if all true)
-def testData(dataActual, dataTest):  
+def testData(dataActual: npt.NDArray[np.float64], dataTest: npt.NDArray[np.float64]) -> None:  
 
     a = abs(dataActual - dataTest) <= testTolerance;
     print(dataActual);
@@ -144,7 +146,7 @@ def testData(dataActual, dataTest):
 ### Acceleration Code #####################################################################################################
 
 ## Naive algorithm for computing acceleration with O(n^2) complexity (in non SI units)
-def naiveAcceleration(xPosition, yPosition, masses): 
+def naiveAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses:npt.NDArray[np.float64]) -> dict[str, npt.NDArray[np.float64]]: 
     
     numberObjects = len(masses)
     xAcceleration = np.zeros(numberObjects);
@@ -175,14 +177,12 @@ def naiveAcceleration(xPosition, yPosition, masses):
 
 ## Barnes Hut Algorithm (in non SI units)
 # TODO add code
-def barnesHutAcceleration(xPosition, yPosition, masses):
-    return 0;
+def barnesHutAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses: npt.NDArray[np.float64]) -> dict[str,npt.NDArray[np.float64]]:
+    return {'None': np.array(0)};
     
 
-
-
 ## Wrapper function (compute, test, plot, rescale)
-def accelerationWrapper(data, mode):
+def accelerationWrapper(data: dict[str,npt.NDArray[np.float64]], mode: str) -> dict[str,npt.NDArray[np.float64]]:
     
     # Ensure necessary data present in input file
     print("\nComputing acceleration");
@@ -206,18 +206,20 @@ def accelerationWrapper(data, mode):
     accelerationFigureLabels = ['Acceleration vectors of particles in ' + str(len(data["xPosition (au)"])) + '-body system', requiredData[0], requiredData[1], 'acceleration']
     plotVectors(data[requiredData[0]],data[requiredData[1]],acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"],accelerationFigureLabels,arrowScale);
     
-    dataRescale(acceleration, accelerationScale);
-    return acceleration;
+    acceleration = dataRescale(acceleration, accelerationScale);
+    data.update(acceleration);
+    return data;
 
   
 #### Execution
 
 # load data, clean, then convert to numpy
-df, inputFile = loadData(inputFile, isDropDuplicates); 
+df, inputFile = loadData(inputFile); 
+df = removeDuplicates(df, isDropDuplicates);
 df = dataFrameToNumpyDict(df);
 
 # Perform computations
-df.update(accelerationWrapper(df,accelerationMode));
+df = accelerationWrapper(df,accelerationMode);
 
 # Convert back to dataFrame and export
 df = pd.DataFrame.from_dict(df);
