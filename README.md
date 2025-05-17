@@ -86,7 +86,7 @@ The `N_Body_Gravity.py` script comes with a number of easily customisable parame
 
  - The `testTolerance` parameter allows the user to set the tolerance for the above unit test. That is, how close the output of the script has to be to the pre-computed solution for the code to pass the test. The default value is `1e-8`.
 
- - The `inputFile` parameter allows the user to set the name of the file which should be read for the positions and masses of the objects in the systems. The file must be of `.csv` type (comma separated value), with first row containing the headings `xPosition (au),yPosition (au),mass (M0)` (as well as any other data you wish to input) and should be stored in the same folder as the `N_Body_System.py` file. The default value is the string `'dataInput'`.
+ - The `inputFile` parameter allows the user to set the name of the file which should be read for the positions and masses of the objects in the systems. The file must be of `.csv` type (comma separated value) and should be stored in the same folder as the `N_Body_System.py` file. In order to compute the acceleration, the `.csv` file must contain columns with headings `xPosition (au)`, `yPosition (au)`, and `mass (M0)` and will return an exception if this is not the case. The default value is the string `'dataInput'`.
 
  - The `outputFile` parameter allows the user to set the name of the `.csv` file to which the data should be saved. The default value is the string `'dataOutput'`. If the file does not already exist, it will be created, whereas if the file does already exist, you will be prompted to overwrite it or provide an alternative file name. 
 
