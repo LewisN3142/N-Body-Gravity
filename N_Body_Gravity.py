@@ -5,6 +5,8 @@ import numpy.typing as npt
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from typing import Any
+from typing import Hashable
 
 
 #### Version 2 (functional programming) ##################################################################################
@@ -31,7 +33,7 @@ myPath: str = os.path.dirname(os.path.abspath(__file__)) + r'/';
 ### File I/O ############################################################################################################
 
 ## Load in data from csv file
-def loadData(chosenInputFile: str):
+def loadData(chosenInputFile: str) -> tuple[pd.DataFrame,str]:
     # Change input file to test version if selected
     if isTest != 0:
         chosenInputFile = 'dataTest'
@@ -56,7 +58,7 @@ def loadData(chosenInputFile: str):
     return dataFrame, chosenInputFile;
     
 ## Clean up data (remove duplicates)
-def removeDuplicates(dataFrame, dropDuplicates: bool):
+def removeDuplicates(dataFrame: pd.DataFrame, dropDuplicates: bool) -> pd.DataFrame:
     if dropDuplicates:
         df_filtered = dataFrame.drop_duplicates(ignore_index=True);
         if not len(dataFrame) == len(df_filtered):
@@ -65,8 +67,8 @@ def removeDuplicates(dataFrame, dropDuplicates: bool):
     return dataFrame;
       
 ## Convert dataFrame to dict 
-def dataFrameToNumpyDict(dataFrame) -> dict[str,npt.NDArray[np.float64]]:
-    data: dict[str,npt.NDArray[np.float64]] = dataFrame.to_dict(orient='list');
+def dataFrameToNumpyDict(dataFrame: pd.DataFrame) -> dict[Hashable,Any]:
+    data: dict[Hashable,Any] = dataFrame.to_dict(orient='list');
     for key in data:
         data[key] = np.array(data[key]);   
     return data;
@@ -85,7 +87,7 @@ def doesFileExist(filePath: str, extension: str) -> str:
     return filePath;
         
 ## Output data to csv file
-def saveData(dataFrame: dict[str,npt.NDArray[np.float64]], chosenOutputFile: str) -> None:
+def saveData(dataFrame: pd.DataFrame, chosenOutputFile: str) -> None:
     savePath: str = myPath + chosenOutputFile + '.csv';
     savePath = doesFileExist(savePath, '.csv');        
     df.to_csv(savePath, encoding='utf-8', index=True, header=True);
@@ -95,13 +97,13 @@ def saveData(dataFrame: dict[str,npt.NDArray[np.float64]], chosenOutputFile: str
 ### Utility Functions ############################################################################################################
 
 ## Rescale quantities
-def dataRescale(dataDict: dict[str, npt.NDArray[np.float64]], scale: float) -> dict[str,npt.NDArray[np.float64]]:
+def dataRescale(dataDict: dict[Hashable, Any], scale: float) -> dict[Hashable,Any]:
     for key in dataDict:
         dataDict[key]*= scale;
     return dataDict;
        
 ## Check if column headings in dataRequired (list) are present in inputData (dictionary)
-def hasRequiredData(inputData, dataRequired: list[str]):
+def hasRequiredData(inputData, dataRequired: list[str]) -> None:
         for item in dataRequired:
             if item not in inputData:
                 raise Exception("Please ensure that the input file has a column with heading: " + item); 
@@ -146,23 +148,23 @@ def testData(dataActual: npt.NDArray[np.float64], dataTest: npt.NDArray[np.float
 ### Acceleration Code #####################################################################################################
 
 ## Naive algorithm for computing acceleration with O(n^2) complexity (in non SI units)
-def naiveAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses:npt.NDArray[np.float64]) -> dict[str, npt.NDArray[np.float64]]: 
+def naiveAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses:npt.NDArray[np.float64]) -> dict[Hashable, Any]: 
     
-    numberObjects = len(masses)
-    xAcceleration = np.zeros(numberObjects);
-    yAcceleration = np.zeros(numberObjects);
+    numberObjects: int = len(masses)
+    xAcceleration: npt.NDArray[np.float64] = np.zeros(numberObjects);
+    yAcceleration: npt.NDArray[np.float64] = np.zeros(numberObjects);
     
     for i in range(1,numberObjects):
         for j in range(0,i):
             
-            changeInPosition = np.array([xPosition[j] - xPosition[i] ,yPosition[j] - yPosition[i]]);   
+            changeInPosition: npt.NDArray[np.float64] = np.array([xPosition[j] - xPosition[i] ,yPosition[j] - yPosition[i]]);   
             
             # Manage objects being in same position (avoid divide by zero)
+            radiusCubed: float = 0;
             if (np.any(changeInPosition)):
                 radiusCubed = np.reciprocal(np.linalg.norm(changeInPosition)); # Could use fast inverse sqrt in c++
                 radiusCubed = radiusCubed * radiusCubed * radiusCubed;
             else:
-                radiusCubed = 0;
                 print("Warning: 2 objects in position (" + str(xPosition[i]) + "," + str(yPosition[i]) + ").");
               
             # Update acceleration from objects i and j interacting
@@ -177,12 +179,12 @@ def naiveAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray
 
 ## Barnes Hut Algorithm (in non SI units)
 # TODO add code
-def barnesHutAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses: npt.NDArray[np.float64]) -> dict[str,npt.NDArray[np.float64]]:
+def barnesHutAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], masses: npt.NDArray[np.float64]) -> dict[Hashable,Any]:
     return {'None': np.array(0)};
     
 
 ## Wrapper function (compute, test, plot, rescale)
-def accelerationWrapper(data: dict[str,npt.NDArray[np.float64]], mode: str) -> dict[str,npt.NDArray[np.float64]]:
+def accelerationWrapper(data: dict[Hashable,Any], mode: str) -> dict[Hashable, Any]:
     
     # Ensure necessary data present in input file
     print("\nComputing acceleration");
@@ -216,13 +218,13 @@ def accelerationWrapper(data: dict[str,npt.NDArray[np.float64]], mode: str) -> d
 # load data, clean, then convert to numpy
 df, inputFile = loadData(inputFile); 
 df = removeDuplicates(df, isDropDuplicates);
-df = dataFrameToNumpyDict(df);
+dfDict = dataFrameToNumpyDict(df);
 
 # Perform computations
-df = accelerationWrapper(df,accelerationMode);
+dfDict = accelerationWrapper(dfDict,accelerationMode);
 
 # Convert back to dataFrame and export
-df = pd.DataFrame.from_dict(df);
+df = pd.DataFrame.from_dict(dfDict);
 saveData(df, outputFile);
 
 input("Press enter to close.");
