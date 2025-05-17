@@ -38,18 +38,20 @@ def loadData(chosenInputFile, dropDuplicates):
     # Import data from file (allows for large number of objects)
     loadPath = myPath + chosenInputFile + '.csv';
     
+    print("\nLoading data from " + loadPath);
+    
     try:
         dataFrame = pd.read_csv(loadPath);
     except FileNotFoundError:
-        print("File not found at " + loadPath);
+        print("File not found.");
     except pd.errors.EmptyDataError:
-        print("No data in file " + loadPath);
+        print("No data in file.");
     except pd.errors.ParserError:
-        print("Unable to parse " + loadPath + "\nPlease make sure data is formatted correctly.");
+        print("Unable to parse file. \nPlease make sure data is formatted correctly.");
     except Exception:
-        print("An unknown error occured when loading " + loadPath);
+        print("An unknown error occured during loading.");
         
-    print('data imported from ' + loadPath);
+    print("Data imported");
     
     if dropDuplicates:
         df_filtered = dataFrame.drop_duplicates(ignore_index=True);
@@ -59,33 +61,32 @@ def loadData(chosenInputFile, dropDuplicates):
         
     return dataFrame, chosenInputFile;
       
-##  Convert dataFrame to dict 
+## Convert dataFrame to dict 
 def dataFrameToNumpyDict(dataFrame):
     data = dataFrame.to_dict(orient='list');
     for key in data:
         data[key] = np.array(data[key]);   
     return data;
     
+## Check if file with name filePath.extension exists and ask to overwrite
 def doesFileExist(filePath, extension):
     while os.path.isfile(filePath):
-        print("The file " + filePath + " already exists. \nWould you like to overwrite it? Y/N");
+        print("\nThe file " + filePath + " already exists. \nWould you like to overwrite it? Y/N");
 
         user = input();
         if user != "Y" and user != "y":
             print("Please choose an alternative file name:")
             filePath = myPath + input() + extension;  
         else:
-            break;
-            
+            break;  
     return filePath;
         
-    
 ## Output data to csv file
 def saveData(dataFrame, chosenOutputFile):
     savePath = myPath + chosenOutputFile + '.csv';
     savePath = doesFileExist(savePath, '.csv');        
     df.to_csv(savePath, encoding='utf-8', index=True, header=True);
-    print('data saved to ' + savePath);
+    print('\nData saved to ' + savePath);
       
       
 ### Utility Functions ############################################################################################################
@@ -94,7 +95,15 @@ def saveData(dataFrame, chosenOutputFile):
 def dataRescale(dataDict, scale):
     for key in dataDict:
         dataDict[key]*= scale;
-      
+       
+       
+## Check if column headings in dataRequired (list) are present in inputData (dictionary)
+def hasRequiredData(inputData, dataRequired):
+        for item in dataRequired:
+            if item not in inputData:
+                raise Exception("Please ensure that the input file has a column with heading: " + item); 
+ 
+ 
 ## Plot vectors on graph
 def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     fig, ax = plt.subplots();
@@ -115,13 +124,11 @@ def plotVectors(xPosition, yPosition, xData, yData, labels, vectorScale):
     plt.ylabel(labels[2]);
         
     fig.gca().set_aspect("equal");
-    
-    
-    
     fig.savefig(figurePath);
     plt.close(fig);
-    print('figure saved to ' + figurePath);
-    
+    print('\nfigure saved to ' + figurePath);
+ 
+ 
 ## Unit test against data provided in exercise (pass if all true)
 def testData(dataActual, dataTest):  
 
@@ -162,7 +169,7 @@ def naiveAcceleration(xPosition, yPosition, masses):
             yAcceleration[i] += masses[j] * changeInPosition[1] * radiusCubed;
             yAcceleration[j] -= masses[i] * changeInPosition[1] * radiusCubed;  
       
-    print('acceleration computed');
+    print('Acceleration computed.');
     return {"xAcceleration (ms^-2)": xAcceleration, "yAcceleration (ms^-2)":yAcceleration};
   
 
@@ -177,19 +184,27 @@ def barnesHutAcceleration(xPosition, yPosition, masses):
 ## Wrapper function (compute, test, plot, rescale)
 def accelerationWrapper(data, mode):
     
-    if mode == 'naive':
-        acceleration = naiveAcceleration(data["xPosition (au)"],data["yPosition (au)"],data["mass (M0)"]);
-    elif mode == 'bh':
-        acceleration = barnesHutAcceleration(data["xPosition (au)"],data["yPosition (au)"],data["mass (M0)"]);
-    else:
-        raise Exception("accelerationMode must be set to either 'naive' or 'bh' (with quotes)");
+    # Ensure necessary data present in input file
+    print("\nComputing acceleration");
+    requiredData = ["xPosition (au)","yPosition (au)","mass (M0)"];
+    hasRequiredData(data, requiredData);    
 
+    # Set algorithm for computing acceleration
+    if mode == 'naive':
+        acceleration = naiveAcceleration(data[requiredData[0]],data[requiredData[1]],data[requiredData[2]]);
+    elif mode == 'bh':
+        acceleration = barnesHutAcceleration(data[requiredData[0]],data[requiredData[1]],data[requiredData[2]]);
+    else:
+        raise Exception("Parameter accelerationMode must be set to either 'naive' or 'bh' (with quotes)");
+
+    # Run unit test
     if isTest != 0:
+        hasRequiredData(data, ["xAccelerationTest","yAccelerationTest"]);
         testData(np.concatenate((acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"])),np.concatenate((data["xAccelerationTest"], data["yAccelerationTest"])));
         
-    accelerationFigureLabels = ['Acceleration vectors of particles in ' + str(len(data["xPosition (au)"])) + '-body system', 'x Position (au)', 'y Position (au)', 'acceleration']
-    
-    plotVectors(data["xPosition (au)"],data["yPosition (au)"],acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"],accelerationFigureLabels,arrowScale);
+    # Plot acceleration
+    accelerationFigureLabels = ['Acceleration vectors of particles in ' + str(len(data["xPosition (au)"])) + '-body system', requiredData[0], requiredData[1], 'acceleration']
+    plotVectors(data[requiredData[0]],data[requiredData[1]],acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"],accelerationFigureLabels,arrowScale);
     
     dataRescale(acceleration, accelerationScale);
     return acceleration;
@@ -208,5 +223,4 @@ df.update(accelerationWrapper(df,accelerationMode));
 df = pd.DataFrame.from_dict(df);
 saveData(df, outputFile);
 
-input("Press enter to exit");
-
+input("Press enter to close.");
