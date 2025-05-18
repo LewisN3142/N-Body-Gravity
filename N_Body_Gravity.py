@@ -1,5 +1,6 @@
 #### import potentially useful libraries #################################################################################
 import math
+import argparse
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -9,18 +10,9 @@ from typing import Any
 from typing import Hashable
 
 
-#### Version 2 (functional programming) ##################################################################################
+#### Version 3 (argparse and type hinting) ################################
 
-### Settings
-isTest: bool = False;
-testTolerance: float = 1e-8; 
-inputFile: str = 'dataInput';
-outputFile: str = 'dataOutput';
-arrowScale: int = 0; # set to 0 to set all arrows to the same length
-accelerationMode: str = 'naive'; # Options: 'naive' or 'bh' (Barnes--Hut)
-isDropDuplicates: bool = False;
-
-### (Global) Constants
+### (Global) Constants 
 gravitationalConstant: float = 6.7e-11;
 astronomicalUnit: float = 1.5e11
 solarMass: float = 2e30;
@@ -33,9 +25,9 @@ myPath: str = os.path.dirname(os.path.abspath(__file__)) + r'/';
 ### File I/O ############################################################################################################
 
 ## Load in data from csv file
-def loadData(chosenInputFile: str) -> tuple[pd.DataFrame,str]:
+def loadData(chosenInputFile: str, checkIfTest: bool) -> tuple[pd.DataFrame,str]:
     # Change input file to test version if selected
-    if isTest != 0:
+    if checkIfTest != 0:
         chosenInputFile = 'dataTest'
     
     # Import data from file (allows for large number of objects)
@@ -111,7 +103,7 @@ def hasRequiredData(inputData, dataRequired: list[str]) -> None:
 ## Plot vectors on graph
 def plotVectors(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.float64], xData: npt.NDArray[np.float64], yData: npt.NDArray[np.float64], labels: list[str], scaleOfArrow: int) -> None:
     fig, ax = plt.subplots();
-    figurePath = myPath + inputFile + r'_' + labels[3] + '.png';
+    figurePath = myPath + labels[4] + r'_' + labels[3] + '.png';
     figurePath = doesFileExist(figurePath,'.png');
     
     vectorScale: npt.NDArray[np.float64] = np.full(len(xPosition),scaleOfArrow);
@@ -134,9 +126,8 @@ def plotVectors(xPosition: npt.NDArray[np.float64], yPosition: npt.NDArray[np.fl
     print('\nfigure saved to ' + figurePath);
  
 ## Unit test against data provided in exercise (pass if all true)
-def testData(dataActual: npt.NDArray[np.float64], dataTest: npt.NDArray[np.float64]) -> None:  
-
-    a = abs(dataActual - dataTest) <= testTolerance;
+def testData(dataActual: npt.NDArray[np.float64], dataTest: npt.NDArray[np.float64], toleranceForTest: float) -> None:  
+    a = abs(dataActual - dataTest) <= toleranceForTest;
     print(dataActual);
     print(a);
     if (np.prod(a) == 0):
@@ -184,7 +175,7 @@ def barnesHutAcceleration(xPosition: npt.NDArray[np.float64], yPosition: npt.NDA
     
 
 ## Wrapper function (compute, test, plot, rescale)
-def accelerationWrapper(data: dict[Hashable,Any], mode: str) -> dict[Hashable, Any]:
+def accelerationWrapper(data: dict[Hashable,Any], mode: str, checkIfTest: bool, toleranceForTest: float, vectorScale: int, outputFileName: str) -> dict[Hashable, Any]:
     
     # Ensure necessary data present in input file
     print("\nComputing acceleration");
@@ -200,13 +191,13 @@ def accelerationWrapper(data: dict[Hashable,Any], mode: str) -> dict[Hashable, A
         raise Exception("Parameter accelerationMode must be set to either 'naive' or 'bh' (with quotes)");
 
     # Run unit test
-    if isTest != 0:
+    if checkIfTest != 0:
         hasRequiredData(data, ["xAccelerationTest","yAccelerationTest"]);
-        testData(np.concatenate((acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"])),np.concatenate((data["xAccelerationTest"], data["yAccelerationTest"])));
+        testData(np.concatenate((acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"])),np.concatenate((data["xAccelerationTest"], data["yAccelerationTest"])), toleranceForTest);
         
     # Plot acceleration
-    accelerationFigureLabels = ['Acceleration vectors of particles in ' + str(len(data["xPosition (au)"])) + '-body system', requiredData[0], requiredData[1], 'acceleration']
-    plotVectors(data[requiredData[0]],data[requiredData[1]],acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"],accelerationFigureLabels,arrowScale);
+    accelerationFigureLabels = ['Acceleration vectors of particles in ' + str(len(data["xPosition (au)"])) + '-body system', requiredData[0], requiredData[1], 'acceleration',outputFileName];
+    plotVectors(data[requiredData[0]],data[requiredData[1]],acceleration["xAcceleration (ms^-2)"], acceleration["yAcceleration (ms^-2)"],accelerationFigureLabels,vectorScale);
     
     acceleration = dataRescale(acceleration, accelerationScale);
     data.update(acceleration);
@@ -214,14 +205,39 @@ def accelerationWrapper(data: dict[Hashable,Any], mode: str) -> dict[Hashable, A
 
   
 #### Execution
+if __name__ == "__main__":
+    
+    ## Get custom parameter values from command line call
+    parser = argparse.ArgumentParser(description="Script for computing properties (e.g. acceleration) of solar objects, with input and output data in .csv files. All arguments are optional and will use default values unless otherwise specified.");
+    
+    parser.add_argument("--isTest", type=bool, default=False, help="(type=boolean, default=False) Runs script in test mode if set to True.");
+    parser.add_argument("--testTolerance", type=float, default=1e-8, help="(type=float, default=1e-8) Amount of error allowed in test computation before the test fails.");
+    parser.add_argument("--inputFile", type=str, default='dataInput', help="(type=string, default='dataInput') Name of csv file, without extension, from which data should be read. Must contain position and mass data with appropriate headings. See readme for more information. Also accepts paths relative to script location.");
+    parser.add_argument("--outputFile", type=str, default='dataOutput', help="(type=string, default='dataOutput') Name of csv file, without extension, to which the results of the computation should be saved. Also accepts paths relative to script location.");
+    parser.add_argument("--accelerationMode", type=str, default='naive', help="(type=string, default='naive') Algorithm to be used when computing acceleration of objects. Options are 'naive' which uses nested for loops, and 'bh' which uses the Barnes--Hut algorithm.");
+    parser.add_argument("--isDropDuplicates", type=bool, default=False, help="(type=boolean, default=False) Removes duplicate rows from the imported data when performing computations if set to true. Note, if only positions of objects match, returns a warning but does not remove duplicates.");
+    parser.add_argument("--arrowScale", type=int, default=0, help="(type=integer, default=0) Allows users to scale the arrows in vector plots produced. Setting to zero normalises all arrows to the same length.");
+    
+    args = parser.parse_args();
+    
+    ## Set global values to use defaults or user input 
+    isTest: bool = args.isTest;
+    testTolerance: float = args.testTolerance; 
+    inputFile: str = args.inputFile;
+    outputFile: str = args.outputFile;
+    accelerationMode: str = args.accelerationMode; 
+    isDropDuplicates: bool = args.isDropDuplicates;
+    arrowScale: int = args.arrowScale; 
+    
+
 
 # load data, clean, then convert to numpy
-df, inputFile = loadData(inputFile); 
+df, inputFile = loadData(inputFile, isTest); 
 df = removeDuplicates(df, isDropDuplicates);
 dfDict = dataFrameToNumpyDict(df);
 
 # Perform computations
-dfDict = accelerationWrapper(dfDict,accelerationMode);
+dfDict = accelerationWrapper(dfDict, accelerationMode, isTest, testTolerance, arrowScale, outputFile); 
 
 # Convert back to dataFrame and export
 df = pd.DataFrame.from_dict(dfDict);
