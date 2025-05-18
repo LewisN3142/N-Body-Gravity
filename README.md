@@ -37,7 +37,7 @@ This section details all you need to know about downloading and using the `N_Bod
   - Matplotlib
   - Pandas
   - Pandas Stubs (if you use mypy)
-  - argparse
+  - Argparse
 
 ### Installation
 
