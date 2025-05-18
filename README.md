@@ -71,12 +71,13 @@ This section details all you need to know about downloading and using the `N_Bod
 
 ### Configuring Settings
 
-The `N_Body_Gravity.py` script includes a number of easily customisable parameters, which can be specified as optional arguments when calling the script from command prompt/terminal/console. In particular, the script supports argparse syntax and can be called with optional arguments in the following manner
+The `N_Body_Gravity.py` script includes a number of easily customisable parameters, which can be specified as optional arguments when calling the script from command prompt/terminal/console. This is done to aid the execution of the script on a large number of input files using, say, a bash script.
+In particular, the script supports argparse syntax and can be called with optional arguments in the following manner
 
 ```sh
   python N_Body_Gravity.py --name_of_variable = value_of_variable --name_of_another_variable = another_value
 ```
-where name_of_variable are name_of_another_variable are replaced with the names of the arguments you wish to specify the values of. Similarly, value_of_variable and another_value should be replaced with the values themselves. You can specify as many variables in one call as you would like by adding them to the end of the call in the same manner as above.
+where `name_of_variable` and `name_of_another_variable` are replaced with the names of the arguments you wish to specify the values of. Similarly, `value_of_variable` and `another_value` should be replaced with the values themselves. You can specify as many variables in one call as you would like by adding them to the end of the call in the same manner as above.
 
 Note: When running the script from your preferred console, ensure that your directory is set to wherever the `N_Body_Gravity.py` script is saved or alternatively provide the relative path to `N_Body_Gravity.py` from your current active directory in the call above.
 
@@ -117,9 +118,9 @@ I would like to thank the staff at the Met Office for inviting me to interview a
 
 The references below were particularly useful in my research &mdash; I recommend reading these for more context on the problem itself, especially the Barnes&ndash;Hut algorithm:
 
-- Ventimiglia, T. and Wayne, K., \emph{The Barnes-Hut Algorithm}, arborjs, (2011): <a href="https://arborjs.org/docs/barnes-hut">link</a>.
-- BaGreal2, \emph{gravitation-particles}, Github, (2023): <a href="https://github.com/BaGreal2/gravitation-particles">link</a>.
--
+- Ventimiglia, T. and Wayne, K., <em>The Barnes-Hut Algorithm</em>, arborjs, (2011): <a href="https://arborjs.org/docs/barnes-hut">link</a>.
+- BaGreal2, <em>gravitation-particles</em>, Github, (2023): <a href="https://github.com/BaGreal2/gravitation-particles">link</a>.
+- Wangari, E., <em>Running Python script with Arguments in the command line</em>, Medium, (2023): <a href="https://medium.com/@evaGachirwa/running-python-script-with-arguments-in-the-command-line-93dfa5f10eff">link</a>.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
