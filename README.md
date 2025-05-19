@@ -101,7 +101,9 @@ Details of the available arguments can also be found in the list below:
   
 - `accelerationMode` (type = string, default = `'naive'`): allows the user to choose between two means of computing the acceleration of the objects, namely `'naive'`, which uses nested for loops with time complexity `O(n^2)`, and `'bh'` which uses the Barnes--Hut approximation algorithm with time complexity `O(n log(n))`. The Barnes--Hut algorithm optimises computation of the acceleration of an object by grouping together source objects which are far enough away and replacing them with an object of the same total mass, situated at their centre of mass.
 
-- `isDropDuplicates` (type = boolean, default = `False`): removes duplicate objects from input data when set to `True`. If the objects are in the same position but have different masses, the code will still execute regardless of the value of `isDropDuplicates`, but will also print a warning to console with the position at which the two objects coincide. 
+- `isDropDuplicates` (type = boolean, default = `False`): removes duplicate objects from input data when set to `True`. If the objects are in the same position but have different masses, the code will still execute regardless of the value of `isDropDuplicates`, but will also print a warning to console with the position at which the two objects coincide. Note that objects being in the same position raises an exception in the Barnes--Hut algorithm.
+
+-  `BarnesHutTheta` (type = float, default = `0.2`): parameter that determines the speed vs accuracy of the Barnes--Hut algorithm, with `0` being the same as brute force computation. The standard value is `0.5`, which is accurate to 5dp on the test data, while the default value of `0.2` is accurate to 8dp on test data, passing the default unit test, while being slightly faster than the brute force approach.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
